@@ -1,21 +1,16 @@
 import { promises as fs } from 'node:fs'
-import { createCipheriv, randomBytes } from 'node:crypto'
 
-import { parseHeader } from './parseHeader.js'
+import { encryptBitmap } from './encryptBitmap.js'
 
-const file = await fs.readFile('./tux.bmp')
+const outputDir = './output'
+const files = await fs.readdir('./images')
 
-const parsedHeader = parseHeader(file)
-const header = file.subarray(0, parsedHeader.offset)
-const body = file.subarray(parsedHeader.offset)
+await fs.mkdir(outputDir, { recursive: true });
 
-console.log('header', parsedHeader)
+for (const file of files) {
+  console.log('Encrypting', file)
+  await encryptBitmap(`./images/${file}`, `${outputDir}/${file}`)
+}
 
-const key = randomBytes(16)
-const cipher = createCipheriv('AES-128-ECB', Buffer.from(key, 'hex'), null)
 
-const encryptedBody = Buffer.concat([cipher.update(body), cipher.final()])
 
-const mixed = Buffer.concat([header, encryptedBody])
-
-await fs.writeFile('./tux-encrypted.bmp', mixed)

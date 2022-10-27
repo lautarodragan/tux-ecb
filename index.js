@@ -1,17 +1,21 @@
 import { promises as fs } from 'node:fs'
 import { createCipheriv, randomBytes } from 'node:crypto'
 
+import { parseHeader } from './parseHeader.js'
 
 const file = await fs.readFile('./tux.bmp')
 
-const key = Buffer.from('password'.repeat(2))
+const parsedHeader = parseHeader(file)
+const header = file.subarray(0, parsedHeader.offset)
+const body = file.subarray(parsedHeader.offset)
+
+console.log('header', parsedHeader)
+
+const key = randomBytes(16)
 const cipher = createCipheriv('AES-128-ECB', Buffer.from(key, 'hex'), null)
-const ciphertext = Buffer.concat([cipher.update(file), cipher.final()])
 
-const bitmapHeaderLength = 54
+const encryptedBody = Buffer.concat([cipher.update(body), cipher.final()])
 
-const unencryptedHeader = file.subarray(0, bitmapHeaderLength)
-const encryptedBody = ciphertext.subarray(bitmapHeaderLength)
-const mixed = Buffer.concat([unencryptedHeader, encryptedBody])
+const mixed = Buffer.concat([header, encryptedBody])
 
-await fs.writeFile('./tux-encrypted-2.bmp', mixed)
+await fs.writeFile('./tux-encrypted.bmp', mixed)

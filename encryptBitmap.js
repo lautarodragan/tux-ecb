@@ -10,7 +10,7 @@ export async function encryptBitmap(sourcePath, targetPath) {
   const header = file.subarray(0, parsedHeader.offset)
   const body = file.subarray(parsedHeader.offset)
 
-  console.log('header', parsedHeader)
+  // console.log('header', parsedHeader)
 
   const key = randomBytes(16)
   const cipher = createCipheriv('AES-128-ECB', Buffer.from(key, 'hex'), null)

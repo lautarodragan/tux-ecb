@@ -21,3 +21,14 @@ export async function encryptBitmap(sourcePath, targetPath) {
 
   await fs.writeFile(targetPath, mixed)
 }
+
+export async function encryptText(sourcePath, targetPath) {
+  const file = await fs.readFile(sourcePath)
+
+  const key = randomBytes(16)
+  const cipher = createCipheriv('AES-128-ECB', Buffer.from(key, 'hex'), null)
+
+  const encryptedBody = Buffer.concat([cipher.update(file), cipher.final()])
+
+  await fs.writeFile(targetPath, encryptedBody)
+}

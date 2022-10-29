@@ -1,19 +1,24 @@
 import { promises as fs } from 'node:fs'
 
-import { encryptBitmap } from './encryptBitmap.js'
+import { encryptBitmap, encryptText } from './encrypt.js'
 
 const outputDir = './output'
-const files = await fs.readdir('./images')
-const bitmapFiles = files.filter(name => name.endsWith('.bmp'))
 
 await fs.mkdir(outputDir, { recursive: true });
 
-console.log('Will encrypt', bitmapFiles.length, 'files')
+await encryptFiles('.bmp', encryptBitmap)
+await encryptFiles('.txt', encryptText)
 
-for (const file of bitmapFiles) {
-  console.log('Encrypting', file)
-  await encryptBitmap(`./images/${file}`, `${outputDir}/${file}`)
+async function encryptFiles(extension, encryptFunction) {
+  const files = await fs.readdir('./input')
+  const bitmapFiles = files.filter(name => name.endsWith(extension))
+
+  console.log('Will encrypt', bitmapFiles.length, `${extension} files`)
+
+  for (const file of bitmapFiles) {
+    console.log('Encrypting', file)
+    await encryptFunction(`./input/${file}`, `${outputDir}/${file}`)
+  }
+
+  console.log()
 }
-
-
-
